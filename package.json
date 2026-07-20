@@ -1,0 +1,27 @@
+{
+  "name": "idempotent-webhook-ingestion",
+  "version": "0.0.0",
+  "description": "An idempotent webhook ingestion service that stores each signed event at most once despite retries and is tested under up to 10,000 requests per second.",
+  "homepage": "https://github.com/fernando-gap/idempotent-webhook-ingestion#readme",
+  "bugs": {
+    "url": "https://github.com/fernando-gap/idempotent-webhook-ingestion/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fernando-gap/idempotent-webhook-ingestion.git"
+  },
+  "license": "Apache-2.0",
+  "author": "Augusto G.",
+  "type": "module",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "fastify": "^5.10.0",
+    "typescript": "^7.0.2"
+  }
+}

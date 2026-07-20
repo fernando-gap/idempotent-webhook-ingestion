@@ -31,6 +31,18 @@ The project does not provide complete protection against:
 - multi-tenant isolation;
 - formal cryptographic or security auditing.
 
+## Transport security
+
+The reference implementation does not terminate TLS and is evaluated over HTTP
+on an isolated local network.
+
+Production deployments must expose the webhook endpoint through HTTPS,
+typically by terminating TLS at a reverse proxy, load balancer, or ingress
+controller.
+
+Webhook signature verification provides message authenticity and integrity,
+but does not provide transport confidentiality.
+
 ## Reporting a vulnerability
 
 Please avoid publishing exploitable vulnerabilities in a public issue.

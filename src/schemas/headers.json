@@ -1,0 +1,11 @@
+{
+    "title": "Headers",
+    "description": "Standard Webhook Headers",
+    "type": "object",
+    "properties": {
+        "webhook-id": { "type": "string" },
+        "webhook-timestamp": { "type": "string" },
+        "webhook-signature": { "type": "string" }
+    },
+    "required": ["webhook-id", "webhook-timestamp", "webhook-signature"]
+}

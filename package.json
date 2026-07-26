@@ -13,14 +13,15 @@
   "license": "Apache-2.0",
   "author": "Augusto G.",
   "type": "module",
-  "main": "index.js",
+  "main": "./src/main.ts",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
     "test": "npx vitest",
     "test:coverage": "vitest run --coverage",
-    "schemas:compile": "npx json2ts -i src/schemas -o src/types"
+    "schemas:compile": "npx json2ts -i src/schemas -o src/types",
+    "docs": "typedoc --entryPointStrategy expand ./src"
   },
   "dependencies": {
     "@fastify/type-provider-json-schema-to-ts": "^5.0.0",
@@ -34,6 +35,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-tsdoc": "^0.5.2",
     "json-schema-to-typescript": "^15.0.4",
+    "typedoc": "^0.28.20",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.65.0",
     "vitest": "^4.1.10"

@@ -2,26 +2,24 @@ import { Payload } from "./types/payload";
 import { Headers } from "./types/headers";
 
 interface Params {
-    provider: string
+  provider: string;
 }
 
 export interface WebhookEndpoint {
-    Headers: Headers, 
-    Body: Payload, 
-    Params: Params
+  Headers: Headers;
+  Body: Payload;
+  Params: Params;
 }
 
-export interface Provider {
-    [name: string]: string[]
-}
+export type Provider = Record<string, string[]>;
 
 export interface WebhookSignatureData {
-    id: string;
-    timestamp: string;
-    data: Payload
+  id: string;
+  timestamp: string;
+  data: Payload;
 }
 
 export interface ProviderSignature {
-    receivedSignature: string;
-    receivedProvider: string
+  receivedSignature: string;
+  receivedProvider: string;
 }

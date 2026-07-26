@@ -1,0 +1,6 @@
+coverage
+*.md
+*.json
+**/*.html
+*.config.mjs
+*.config.js

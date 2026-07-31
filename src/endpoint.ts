@@ -35,7 +35,11 @@ export const endpoint: FastifyPluginAsync = async (app) => {
       }
 
       try {
-        const persist = await persistMessage(this.sql, request.params.provider, signatureData)
+        const persist = await persistMessage(
+          this.sql,
+          request.params.provider,
+          signatureData,
+        );
 
         if (persist.duplicated) {
           return reply.code(200).send({ ok: true });
@@ -44,9 +48,8 @@ export const endpoint: FastifyPluginAsync = async (app) => {
         if (!persist.inserted) {
           return reply.code(500).send({ ok: false });
         }
-
       } catch (err) {
-          return reply.code(500).send({ ok: false, err: err });
+        return reply.code(500).send({ ok: false, err: err });
       }
 
       return reply.code(200).send({ ok: true });

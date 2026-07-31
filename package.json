@@ -21,7 +21,9 @@
     "test": "npx vitest",
     "test:coverage": "vitest run --coverage",
     "schemas:compile": "npx json2ts -i src/schemas -o src/types",
-    "docs": "typedoc --entryPointStrategy expand ./src"
+    "docs": "typedoc --entryPointStrategy expand ./src",
+    "code:lint": "npx eslint ./src --fix",
+    "code:format": "npx prettier ./src --check --write"
   },
   "dependencies": {
     "@fastify/type-provider-json-schema-to-ts": "^5.0.0",

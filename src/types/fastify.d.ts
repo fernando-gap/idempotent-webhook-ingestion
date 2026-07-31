@@ -5,6 +5,6 @@ import type { Sql } from "postgres";
 declare module "fastify" {
   interface FastifyInstance {
     providers: Provider;
-    sql: Sql
+    sql: Sql;
   }
 }

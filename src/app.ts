@@ -10,14 +10,17 @@ import { createTables } from "./database";
  *
  * @returns A fastify instance
  */
-export default async function createApp(providers: Providers, databaseUrl: string) {
+export default async function createApp(
+  providers: Providers,
+  databaseUrl: string,
+) {
   const app = Fastify({ logger: env.NODE_ENV === "development" });
-  const sql = postgres(databaseUrl)
+  const sql = postgres(databaseUrl);
 
-  await createTables(sql)
+  await createTables(sql);
 
   app.decorate("providers", providers);
-  app.decorate('sql', sql)
+  app.decorate("sql", sql);
 
   app.register(endpoint);
 

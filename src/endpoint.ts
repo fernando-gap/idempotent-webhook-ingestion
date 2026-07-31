@@ -3,6 +3,7 @@ import HeadersSchema from "./schemas/headers.json";
 import PayloadSchema from "./schemas/payload.json";
 import { WebhookEndpoint, WebhookSignatureData } from "./types";
 import { verifySignature } from "./signature";
+import { persistMessage } from "./database";
 
 export const endpoint: FastifyPluginAsync = async (app) => {
   app.post<WebhookEndpoint>(
@@ -31,6 +32,21 @@ export const endpoint: FastifyPluginAsync = async (app) => {
         )
       ) {
         return reply.code(403).send({ ok: false });
+      }
+
+      try {
+        const persist = await persistMessage(this.sql, request.params.provider, signatureData)
+
+        if (persist.duplicated) {
+          return reply.code(200).send({ ok: true });
+        }
+
+        if (!persist.inserted) {
+          return reply.code(500).send({ ok: false });
+        }
+
+      } catch (err) {
+          return reply.code(500).send({ ok: false, err: err });
       }
 
       return reply.code(200).send({ ok: true });

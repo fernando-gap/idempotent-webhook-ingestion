@@ -11,7 +11,7 @@ export interface WebhookEndpoint {
   Params: Params;
 }
 
-export type Provider = Record<string, string[]>;
+export type Providers = Record<string, [string, ...string[]]>;
 
 export interface WebhookSignatureData {
   id: string;

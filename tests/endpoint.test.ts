@@ -1,29 +1,28 @@
-import { expect, describe, it } from "vitest";
+import { expect, describe, it, beforeAll, afterAll } from "vitest";
 import createApp from "../src/app";
+import { PostgreSqlContainer, StartedPostgreSqlContainer } from "@testcontainers/postgresql";
+import type { FastifyInstance } from "fastify";
+import { insertInbox, providers, requestFactory } from "./helpers";
+import { WebhookSignatureData } from "../src/types";
+import { Payload } from "../src/types/payload";
+import { createHmac, randomUUID } from "node:crypto";
+
+let postgresContainer: StartedPostgreSqlContainer;
+let server: FastifyInstance;
+
+beforeAll(async () => {
+  postgresContainer = await new PostgreSqlContainer("postgres:alpine").start();
+  server = await createApp(providers, postgresContainer.getConnectionUri());
+}, 10000 * 10)
+
+afterAll(async () => {
+    await postgresContainer.stop()
+})
 
 describe("send request to webhook endpoint", async () => {
-  const server = await createApp({
-    a: ["whsec_ITirpiST4snSMSPuF5bnpztjnW1wDjY4VrnitpGcECA="],
-  });
 
   it("accepts a signed webhook requests and return OK", async () => {
-    const response = await server.inject({
-      method: "POST",
-      url: "/a",
-      headers: {
-        "webhook-id": "msg_35e8a3d9-2dc5-4460-bce9-81349fefb740",
-        "webhook-timestamp": "1674087231",
-        "webhook-signature": "v1,ydnc64SncH19cxaSCIP53tSrpf7qOJXuLJTGFt2fiXA=",
-      },
-      body: {
-        type: "event.sent",
-        timestamp: "2026-07-26T14:30:00.000Z",
-        data: {
-          hello: "world",
-        },
-      },
-    });
-
+    const response = await server.inject(requestFactory("a", providers["a"][0], null));
     expect(response.statusCode).toBe(200);
   });
 
@@ -75,44 +74,53 @@ describe("send request to webhook endpoint", async () => {
   });
 
   it("returns NOT FOUND when provider is not in the fastify.providers object", async () => {
-    const response = await server.inject({
-      method: "POST",
-      url: "/provider",
-      headers: {
-        "webhook-id": "msg_35e8a3d9-2dc5-4460-bce9-81349fefb740",
-        "webhook-timestamp": "1674087231",
-        "webhook-signature": "v1,ydnc64SncH19cxaSCIP53tSrpf7qOJXuLJTGFt2fiXA=",
-      },
-      body: {
-        type: "event.sent",
-        timestamp: "2026-07-26T14:30:00.000Z",
-        data: {
-          hello: "world",
-        },
-      },
-    });
-
+    const response = await server.inject(requestFactory("provider", providers.a[0], null))
     expect(response.statusCode).toBe(404);
   });
 
   it("returns FORBIDDEN when signature is invalid", async () => {
-    const response = await server.inject({
-      method: "POST",
-      url: "/a",
-      headers: {
-        "webhook-id": "msg_35e8a3d9-2dc5-4460-bce9-81349fefb740",
-        "webhook-timestamp": "1674087231",
-        "webhook-signature": "v1,Adnc64SncH19cxaSCIP53tSrpf7qOJXuLJTGFt2fiXA=",
-      },
-      body: {
-        type: "event.sent",
-        timestamp: "2026-07-26T14:30:00.000Z",
-        data: {
-          hello: "world",
-        },
-      },
-    });
-
+    const response = await server.inject(requestFactory("a", "invalidSignature", null))
     expect(response.statusCode).toBe(403);
   });
+
+  it("returns OK when duplicate is found", async () => {
+
+    const req = requestFactory("a", providers.a[0], null)
+
+    const data: WebhookSignatureData= {
+      id: req.headers["webhook-id"],
+      timestamp: req.headers["webhook-timestamp"],
+      data: req.body as Payload,
+    }
+
+    await insertInbox(server.sql, data)
+
+    const response = await server.inject(req)
+    expect(response.statusCode).toBe(200);
+  })
+
+  it("returns INTERNAL SERVER ERROR when database throwns error during the transaction", async () => {
+    const request = {
+        method: "POST" as const,
+        url: `/a`,
+        headers: {
+            "webhook-id": `msg_${randomUUID()}`,
+            "webhook-timestamp": "this-should-throw-error-in-transaction",
+            "webhook-signature": "",
+        },
+        body: {
+            type: "event.sent",
+            timestamp: (new Date()).toISOString(),
+            data: { hello: "world" }
+        },
+    }
+
+    const encodedSecret = Buffer.from(providers.a[0].slice("whsec_".length), "base64")
+    const dataToBeSigned = `${request.headers["webhook-id"]}.${request.headers["webhook-timestamp"]}.${JSON.stringify(request.body)}`
+    request.headers["webhook-signature"] = `v1,${createHmac("sha256", encodedSecret).update(dataToBeSigned).digest("base64")}`
+
+    const response = await server.inject(request)
+    expect(response.statusCode).toBe(500);
+
+  })
 });

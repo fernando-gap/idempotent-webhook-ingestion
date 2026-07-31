@@ -7,7 +7,7 @@
       "node"
     ],
     // Project structure
-    "rootDir": "./src",
+    "rootDir": ".",
     "outDir": "./dist",
     // Type safety
     "strict": true,
@@ -31,7 +31,8 @@
     "skipLibCheck": true
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "tests/**/*.ts"
   ],
   "exclude": [
     "dist",

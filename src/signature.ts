@@ -1,5 +1,5 @@
 import { randomBytes, createHmac, timingSafeEqual } from "node:crypto";
-import { Provider, WebhookSignatureData } from "./types";
+import { Providers, WebhookSignatureData } from "./types";
 import env from "./env";
 
 /**
@@ -57,8 +57,8 @@ export function createSignature(secret: string, data: WebhookSignatureData) {
  * @param amount - the number of providers to be created.
  * @returns an object with the name and secret of the providers
  */
-export function createProviders(amount: number): Provider {
-  const providers: Provider = {};
+export function createProviders(amount: number): Providers {
+  const providers: Providers = {};
   const names = "abcdefghijklmnopqrstuvwxyz".split("");
 
   if (amount > names.length) {

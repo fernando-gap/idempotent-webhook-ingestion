@@ -5,7 +5,7 @@ import config from "./env";
 import { createProviders } from "./signature";
 
 const providers = Object.freeze(createProviders(env.KELP_PROVIDER_AMOUNT));
-const server = await createApp(providers);
+const server = await createApp(providers, env.KELP_DATABASE_URL);
 
 try {
   await writeFile(env.KELP_CONFIG_PATH, JSON.stringify(providers));

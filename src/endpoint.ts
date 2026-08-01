@@ -35,11 +35,11 @@ export const endpoint: FastifyPluginAsync = async (app) => {
         return reply.code(403).send({ ok: false });
       }
 
-      const interval = Math.floor(Date.now() / 1000)
-      const t = Number(signatureData.timestamp)
+      const interval = Math.floor(Date.now() / 1000);
+      const t = Number(signatureData.timestamp);
 
       if (t > interval || t < interval - env.KELP_TIMESTAMP_TOLERANCE_S) {
-        return reply.code(403).send({ ok: false })
+        return reply.code(403).send({ ok: false });
       }
 
       try {

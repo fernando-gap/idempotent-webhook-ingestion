@@ -88,3 +88,26 @@ export const requestFactory = (provider: string, secret: string, data: unknown |
 
     return request
 }
+
+export const requestFactoryTimestamp = (provider: string, secret: string, data: unknown | null, timestamp: number) => {
+    const request = {
+        method: "POST" as const,
+        url: `/${provider}`,
+        headers: {
+            "webhook-id": `msg_${randomUUID()}`,
+            "webhook-timestamp": String(timestamp / 1000),
+            "webhook-signature": "",
+        },
+        body: {
+            type: "event.sent",
+            timestamp: (new Date()).toISOString(),
+            data: data || { hello: "world" }
+        },
+    }
+
+    const encodedSecret = Buffer.from(secret.slice("whsec_".length), "base64")
+    const dataToBeSigned = `${request.headers["webhook-id"]}.${request.headers["webhook-timestamp"]}.${JSON.stringify(request.body)}`
+    request.headers["webhook-signature"] = `v1,${createHmac("sha256", encodedSecret).update(dataToBeSigned).digest("base64")}`
+
+    return request
+}

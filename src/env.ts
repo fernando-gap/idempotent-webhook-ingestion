@@ -45,6 +45,7 @@ const env = Object.freeze({
   KELP_PORT: readNumber(process.env.KELP_PORT),
   KELP_RANDOM_BYTES_SIZE: readNumber(process.env.KELP_RANDOM_BYTES_SIZE),
   KELP_PROVIDER_AMOUNT: readNumber(process.env.KELP_PROVIDER_NUMBER),
+  KELP_TIMESTAMP_TOLERANCE_S: readNumber(process.env.KELP_TIMESTAMP_TOLERANCE_S),
   KELP_SECRET_PREFIX: parsePrefix(process.env.KELP_SECRET_PREFIX),
 });
 

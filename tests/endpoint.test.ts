@@ -2,7 +2,7 @@ import { expect, describe, it, beforeAll, afterAll } from "vitest";
 import createApp from "../src/app";
 import { PostgreSqlContainer, StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import type { FastifyInstance } from "fastify";
-import { insertInbox, providers, requestFactory } from "./helpers";
+import { insertInbox, providers, requestFactory, requestFactoryTimestamp } from "./helpers";
 import { WebhookSignatureData } from "../src/types";
 import { Payload } from "../src/types/payload";
 import { createHmac, randomUUID } from "node:crypto";
@@ -122,5 +122,19 @@ describe("send request to webhook endpoint", async () => {
     const response = await server.inject(request)
     expect(response.statusCode).toBe(500);
 
+  })
+
+  it("returns FORBIDDEN if webhook-timestamp is in the future relative to now", async() => {
+    const futureTimestamp = Date.now() + 60*1000 
+    const response = await server.inject(requestFactoryTimestamp("a", providers["a"][0], null, futureTimestamp));
+
+    expect(response.statusCode).toBe(403);
+
+  })
+  it("returns FORBIDDEN if timestamp is far in the past relative to the tolerance (60s)", async() => {
+    const futureTimestamp = Date.now() - 61*1000 
+    const response = await server.inject(requestFactoryTimestamp("a", providers["a"][0], null, futureTimestamp));
+
+    expect(response.statusCode).toBe(403);
   })
 });
